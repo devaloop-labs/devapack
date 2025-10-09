@@ -1,0 +1,3 @@
+/**
+ * TypeScript wrapper for Devapack.
+ */
