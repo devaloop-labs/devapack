@@ -1,7 +1,7 @@
 {
   "name": "@devaloop/devapack",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Addon generator and packager for Devalang",
   "main": "out-tsc/index.js",
   "bin": {

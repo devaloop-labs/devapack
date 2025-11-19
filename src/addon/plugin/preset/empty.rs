@@ -25,15 +25,47 @@ async fn create_plugin_empty_src_lib(rs_path: &Path) -> Result<(), String> {
     let src_lib_content: &'static str = r#"// Empty plugin preset using Devalang's safe plugin API
 // No unsafe code needed!
 //
-// Usage in devalang scripts:
-// @use publisher.name as myPlugin
-// let myProcess = myPlugin.process
+// USAGE - Old syntax (deprecated, still supported):
+//   @use publisher.name as myPlugin
+//   let myProcess = myPlugin.process { gain: 0.8 }
+//
+// NEW SYNTAX - Chained parameters (recommended):
+//   @use publisher.name as myPlugin
+//   let myProcess = myPlugin.process
+//       -> gain(0.8)
+
+use std::sync::{Mutex, OnceLock};
+
+// Plugin state
+struct PluginState {
+    gain: f32,
+}
+
+static STATE: OnceLock<Mutex<PluginState>> = OnceLock::new();
+
+fn with_state<F, R>(f: F) -> R 
+where 
+    F: FnOnce(&mut PluginState) -> R 
+{
+    let m = STATE.get_or_init(|| Mutex::new(PluginState { gain: 1.0 }));
+    let mut g = m.lock().unwrap();
+    f(&mut *g)
+}
+
+// Export: "gain" - Set gain/volume
+devalang::export_plugin!(gain, |_out, _params, _note, _freq, amp| {
+    with_state(|state| {
+        state.gain = amp.clamp(0.0, 1.0);
+    });
+});
 
 // Export: "process" - Simple gain/volume control
-devalang::export_plugin!(process, |out, _params, _note, _freq, amp| {
-    for sample in out.iter_mut() {
-        *sample *= amp;
-    }
+devalang::export_plugin!(process, |out, _params, _note, _freq, _amp| {
+    with_state(|state| {
+        for sample in out.iter_mut() {
+            *sample *= state.gain;
+        }
+    });
 });
 "#;
 

@@ -435,6 +435,7 @@ fn default_mit_license(publisher: &str) -> String {
     )
 }
 
+#[allow(dead_code)]
 fn create_plugin_tar_gz_native(
     plugin_toml_path: &Path,
     out_zip: &Path,

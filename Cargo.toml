@@ -1,6 +1,6 @@
 [package]
 name = "devapack"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Labscend Studios <hello@labscend.studio>"]
 description = "Addon generator and packager for Devalang"
 edition = "2024"
